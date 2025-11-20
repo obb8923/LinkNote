@@ -1,5 +1,5 @@
 import { useCallback, useState, useEffect, useRef, useMemo } from 'react';
-import { useWindowDimensions, View, Alert, StyleSheet } from 'react-native';
+import { useWindowDimensions, View, Alert, StyleSheet, Platform } from 'react-native';
 import { Canvas, Group } from '@shopify/react-native-skia';
 import { runOnJS, useDerivedValue, useSharedValue } from 'react-native-reanimated';
 import {
@@ -272,14 +272,6 @@ export const GraphScreen = () => {
     return { filteredNodes: nodes, filteredLinks: links };
   }, [selectedFilter, nodes, links, people, groups, tags, canvasWidth, canvasHeight]);
 
-  const logGesture = useCallback(
-    (phase: string, payload?: Record<string, unknown>) => {
-      if (__DEV__) {
-        console.log('[GraphGesture]', phase, payload);
-      }
-    },
-    [],
-  );
   const forceRender = useCallback(() => {
     if (__DEV__) {
       console.log('[Graph] forceRender');
@@ -345,9 +337,6 @@ export const GraphScreen = () => {
       canvasContainerRef.current?.measure((_, __, ___, ____, pageX, pageY) => {
         canvasOffsetX.value = pageX;
         canvasOffsetY.value = pageY;
-        if (__DEV__) {
-          console.log('[Graph] canvas offset', pageX, pageY);
-        }
       });
     });
   }, [canvasOffsetX, canvasOffsetY]);
@@ -415,9 +404,6 @@ export const GraphScreen = () => {
     .minDistance(0)
     .runOnJS(true) // <-- Reanimated + JS 콜 많이 쓰면 넣어주는게 안전함
     .shouldCancelWhenOutside(false) // 뷰 밖으로 나가도 cancel 안 되게
-    .onBegin((e: GestureStateChangeEvent<PanGestureHandlerEventPayload>) => {
-      runOnJS(logGesture)('begin', { x: e.absoluteX, y: e.absoluteY });
-    })
     .onStart((e: GestureStateChangeEvent<PanGestureHandlerEventPayload>) => {
       const { x: localX, y: localY } = convertToLocal(
         e.absoluteX,
@@ -435,11 +421,9 @@ export const GraphScreen = () => {
       const nodeId = findNodeAtPosition(localX, localY, currentNodes);
       if (nodeId) {
         draggedNodeId.value = nodeId;
-        runOnJS(logGesture)('onStart', { x: localX, y: localY, nodeId });
         runOnJS(fixNode)(nodeId);
         runOnJS(handleNodeSelect)(nodeId);
       } else {
-        runOnJS(logGesture)('onStart', { x: localX, y: localY, nodeId: null });
         runOnJS(handleNodeSelect)(null);
       }
     })
@@ -455,25 +439,11 @@ export const GraphScreen = () => {
 
     if (distance > TAP_THRESHOLD && !isDragging.value) {
       isDragging.value = true;
-      runOnJS(logGesture)('dragStart', {
-        nodeId: draggedNodeId.value,
-        x: localX,
-        y: localY,
-      });
     }
 
     if (draggedNodeId.value) {
       runOnJS(updateNodePosition)(draggedNodeId.value, localX, localY);
-      runOnJS(logGesture)('dragUpdate', {
-        nodeId: draggedNodeId.value,
-        x: localX,
-        y: localY,
-      });
     }
-  })
-    .onEnd((e: GestureStateChangeEvent<PanGestureHandlerEventPayload>) => {
-    // 순수 이벤트 로그만
-      runOnJS(logGesture)('onEnd', { x: e.absoluteX, y: e.absoluteY });
   })
     .onFinalize(
       (e: GestureStateChangeEvent<PanGestureHandlerEventPayload>) => {
@@ -482,13 +452,6 @@ export const GraphScreen = () => {
           e.absoluteY,
         );
 
-        runOnJS(logGesture)('finalize', {
-          x: localX,
-          y: localY,
-          draggedNodeId: draggedNodeId.value,
-          isDragging: isDragging.value,
-        });
-
     const distance = Math.sqrt(
       Math.pow(localX - touchStartX.value, 2) +
       Math.pow(localY - touchStartY.value, 2)
@@ -496,11 +459,6 @@ export const GraphScreen = () => {
     const timeElapsed = Date.now() - touchStartTimestamp.value;
 
         if (draggedNodeId.value) {
-          runOnJS(logGesture)('dragEnd', {
-            nodeId: draggedNodeId.value,
-            x: localX,
-            y: localY,
-          });
           runOnJS(unfixNode)(draggedNodeId.value);
         }
 
@@ -508,13 +466,6 @@ export const GraphScreen = () => {
     if (!isDragging.value && distance < TAP_THRESHOLD && timeElapsed < TAP_TIME_THRESHOLD) {
       const currentNodes = getSimNodes();
       const currentLinks = getSimLinks();
-
-        runOnJS(logGesture)('tapCandidate', {
-          x: localX,
-          y: localY,
-          distance,
-          timeElapsed,
-        });
 
       const nodeId = currentNodes
         ? findNodeAtPosition(localX, localY, currentNodes)
@@ -556,8 +507,10 @@ export const GraphScreen = () => {
           style={{ width: canvasWidth, height: canvasHeight }}
           onLayout={updateCanvasOffset}
         >
-          {/* 터치 전용 레이어 */}
-          <GestureDetector gesture={panGesture}>
+          {Platform.OS === 'ios' ? (
+<>
+ {/* 터치 전용 레이어 */}
+ <GestureDetector gesture={panGesture}>
             <View style={[StyleSheet.absoluteFill, { backgroundColor: 'transparent' }]} />
           </GestureDetector>
 
@@ -596,6 +549,54 @@ export const GraphScreen = () => {
               })}
             </Group>
           </Canvas>
+</>
+
+          ):
+          (
+<>
+ {/* 터치 전용 레이어 */}
+ <GestureDetector gesture={panGesture}>
+
+          {/* 렌더링 전용 레이어 */}
+          <Canvas style={[StyleSheet.absoluteFill]} pointerEvents="none">
+            <Group>
+              {filteredLinks.map((l) => {
+                const isHighlighted = connectedLinkIds.has(l.id);
+                const edgeOpacity = isSelectionActive
+                  ? isHighlighted
+                    ? 1
+                    : DIMMED_OPACITY
+                  : 1;
+                return (
+                  <Edge 
+                    key={l.id}
+                    link={l}
+                    isHighlighted={isHighlighted}
+                    opacity={edgeOpacity}
+                  />
+                );
+              })}
+              {filteredNodes.map((n) => {
+                const nodeOpacity = isSelectionActive
+                  ? connectedNodeIds.has(n.id)
+                    ? 1
+                    : DIMMED_OPACITY
+                  : 1;
+                return (
+                  <Node
+                    key={n.id}
+                    node={n}
+                    opacity={nodeOpacity}
+                  />
+                );
+              })}
+            </Group>
+          </Canvas>
+          </GestureDetector>
+
+</>
+          )}
+         
         </View>
       </View>
       <TabBar />
