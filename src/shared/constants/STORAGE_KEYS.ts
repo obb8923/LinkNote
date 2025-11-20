@@ -1,0 +1,6 @@
+export const STORAGE_KEYS = {
+  PEOPLE: 'PEOPLE',
+  RELATIONS: 'RELATIONS',
+  LANGUAGE: 'LANGUAGE',
+} as const;
+

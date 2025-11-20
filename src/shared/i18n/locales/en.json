@@ -1,0 +1,40 @@
+{
+  "common": {
+    "languages": {
+      "ko": "Korean",
+      "en": "English"
+    }
+  },
+  "setting": {
+    "title": "Settings",
+    "language": {
+      "sectionTitle": "Language",
+      "description": "Choose the display language for the app.",
+      "deviceLabel": "Default (device language): {{language}}",
+      "notice": "When Korean is not selected, English is used."
+    }
+  },
+  "people": {
+    "title": "People",
+    "listLabel": "Contacts",
+    "searchPlaceholder": "Search by name or tag",
+    "actions": {
+      "addPersonShort": "Add person",
+      "addRelation": "Add relation",
+      "addPerson": "Add new person"
+    },
+    "empty": {
+      "title": "No people yet",
+      "line1": "Add the people you want to remember",
+      "line2": "and keep them organized.",
+      "searchEmpty": "No results found."
+    }
+  },
+  "personDetail": {
+    "title": "Person detail",
+    "notFound": "Unable to find the person information.",
+    "relationSection": "Relations"
+  }
+}
+
+
