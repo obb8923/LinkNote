@@ -1,4 +1,5 @@
 import './global.css';
+import 'intl-pluralrules';
 import '@i18n/index';
 import React, { useEffect } from 'react';
 import { StatusBar, View } from 'react-native';
