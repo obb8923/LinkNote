@@ -10,8 +10,10 @@ import { PeopleStackParamList } from '@nav/stack/PeopleStack';
 import { FlashList } from '@shopify/flash-list';
 import { PersonType} from '@/shared/types/personType';
 import { Chip } from '@components/Chip';
-import { PlusButton } from '@/features/AddPerson/components/PlusButton';
 import { PeopleListHeader } from '@/features/People/components/PeopleListHeader';
+import { COLORS } from '@constants/COLORS';
+import AddPersonIcon from '@assets/svgs/AddPerson.svg';
+import AddRelationIcon from '@assets/svgs/AddRelation.svg';
 
 type PeopleScreenNavigationProp = NativeStackNavigationProp<PeopleStackParamList,'People'>;
 
@@ -107,9 +109,15 @@ export const PeopleScreen = () => {
         <ScreenHeader
           title={t('people.title')}
           rightContent={
-            <View className="flex-row items-center justify-end gap-2">
-              <PlusButton text={t('people.actions.addPersonShort')} onPress={handleAddPerson} />
-              <PlusButton text={t('people.actions.addRelation')} onPress={handleAddRelation} />
+            <View className="flex-row items-center justify-end gap-4">
+              <TouchableOpacity onPress={handleAddPerson} className="flex-row items-center justify-center gap-1">
+                <AddPersonIcon width={18} height={18} color={COLORS.BLACK} />
+                <Text text={t('people.actions.addPersonShort')} type="body2" numberOfLines={1} />
+              </TouchableOpacity>
+              <TouchableOpacity onPress={handleAddRelation} className="flex-row items-center justify-center gap-1">
+                <AddRelationIcon width={18} height={18} color={COLORS.BLACK} />
+                <Text text={t('people.actions.addRelation')} type="body2" numberOfLines={1} />
+              </TouchableOpacity>
             </View>
           }
         />
