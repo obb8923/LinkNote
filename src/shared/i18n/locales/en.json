@@ -9,9 +9,8 @@
     "title": "Settings",
     "language": {
       "sectionTitle": "Language",
-      "description": "Choose the display language for the app.",
-      "deviceLabel": "Default (device language): {{language}}",
-      "notice": "When Korean is not selected, English is used."
+      "notice": "When Korean is not selected, English is used.",
+      "alert": "Language has been changed."
     }
   },
   "people": {
@@ -48,5 +47,3 @@
     }
   }
 }
-
-
