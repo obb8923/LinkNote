@@ -4,6 +4,7 @@ import { AsyncStorageService } from '@services/asyncStorageService';
 import { STORAGE_KEYS } from '@constants/STORAGE_KEYS';
 import uuid from 'react-native-uuid';
 import { useGraphStore } from '@stores/graphStore';
+import { useRelationStore } from '@stores/relationStore';
 import { GraphNode } from '@/shared/types/graphType';
 
 // 한글, 영어, 숫자, 특수문자 순으로 정렬하는 함수
@@ -77,6 +78,7 @@ interface PersonStore {
   setPeople: (people: PersonType[]) => void;
   addPerson: (person: Omit<PersonType, 'id'>) => Promise<void>;
   updatePerson: (personId: string, updates: Partial<PersonType>) => Promise<void>;
+  deletePerson: (personId: string) => Promise<void>;
 }
 
 export const usePersonStore = create<PersonStore>((set, get) => ({
@@ -131,6 +133,40 @@ export const usePersonStore = create<PersonStore>((set, get) => ({
     await AsyncStorageService.setJSONItem<PersonType[]>(
       STORAGE_KEYS.PEOPLE,
       sortedPeople,
+    );
+  },
+
+  deletePerson: async (personId: string) => {
+    const remainingPeople = get().people.filter((person) => person.id !== personId);
+    const sortedPeople = sortPeopleByName(remainingPeople);
+    set({ people: sortedPeople });
+
+    await AsyncStorageService.setJSONItem<PersonType[]>(
+      STORAGE_KEYS.PEOPLE,
+      sortedPeople,
+    );
+
+    const graphNodes = useGraphStore.getState().nodes;
+    const graphLinks = useGraphStore.getState().links;
+    const filteredNodes = graphNodes.filter((node) => node.personId !== personId);
+    const filteredLinks = graphLinks.filter(
+      (link) =>
+        link.source.personId !== personId && link.target.personId !== personId,
+    );
+    useGraphStore.getState().setNodes(filteredNodes);
+    useGraphStore.getState().setLinks(filteredLinks);
+
+    const relationStore = useRelationStore.getState();
+    const filteredRelations = relationStore.relations.filter(
+      (relation) =>
+        relation.sourcePersonId !== personId &&
+        relation.targetPersonId !== personId,
+    );
+    relationStore.setRelations(filteredRelations);
+
+    await AsyncStorageService.setJSONItem(
+      STORAGE_KEYS.RELATIONS,
+      filteredRelations,
     );
   },
 }));

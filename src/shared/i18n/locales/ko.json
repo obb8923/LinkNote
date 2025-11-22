@@ -33,7 +33,19 @@
   "personDetail": {
     "title": "지인 상세",
     "notFound": "지인 정보를 찾을 수 없습니다.",
-    "relationSection": "관계"
+    "relationSection": "관계",
+    "actions": {
+      "edit": "편집",
+      "delete": "삭제",
+      "save": "저장"
+    },
+    "edit": {
+      "title": "지인 정보 편집",
+      "deleteTitle": "지인을 삭제할까요?",
+      "deleteDescription": "삭제하면 이 지인과 연결된 관계도 함께 삭제돼요.",
+      "deleteCancel": "취소",
+      "deleteConfirm": "삭제"
+    }
   }
 }
 

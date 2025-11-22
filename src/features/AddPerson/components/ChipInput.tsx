@@ -34,7 +34,7 @@ export const ChipInput = ({
 
   return (
     <View className="px-4 py-3" style={{ position: 'relative' }}>
-      <View className="flex-row flex-wrap items-center">
+      <View className="flex-row flex-wrap items-center gap-2">
         {values.map((value, index) => (
           <Chip
             key={index}

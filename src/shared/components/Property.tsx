@@ -74,7 +74,7 @@ export const Property = ({ property, onUpdate, readOnly = false, onRemoveValue }
 
   const IconComponent = getPropertyIcon(property.type);
   const headerHeight = 18;
-  const iconWidth = headerHeight  - 3;
+  const iconWidth = headerHeight - 3;
 
   // 읽기 전용 모드
   if (readOnly) {
@@ -86,13 +86,13 @@ export const Property = ({ property, onUpdate, readOnly = false, onRemoveValue }
     return (
       <View className="mb-4">
         <View className="flex-row items-center mb-2" style={{ height: headerHeight }}>
-        <View className="mr-1 justify-end items-center" style={{ width: headerHeight, height: headerHeight }}>
-          <IconComponent width={iconWidth} height={iconWidth} color={COLORS.NEUTRAL_600} />
+          <View className="mr-1 justify-end items-center" style={{ width: headerHeight, height: headerHeight }}>
+            <IconComponent width={iconWidth} height={iconWidth} color={COLORS.NEUTRAL_600} />
+          </View>
+          <Text text={getPropertyLabel(property.type)} type="body3" className="text-neutral-600 font-semibold" style={{ lineHeight: Platform.OS === 'ios' ? headerHeight : 18 }} />
         </View>
-        <Text text={getPropertyLabel(property.type)} type="body3" className="text-neutral-600 font-semibold" style={{ lineHeight: Platform.OS === 'ios' ? headerHeight :18}} />
-      </View>
         {isChipType ? (
-          <View className="flex-row flex-wrap">
+          <View className="flex-row flex-wrap gap-2">
             {property.values.map((value, index) => (
               <Chip
                 key={index}
@@ -119,7 +119,7 @@ export const Property = ({ property, onUpdate, readOnly = false, onRemoveValue }
         <View className="mr-1 justify-end items-center" style={{ width: headerHeight, height: headerHeight }}>
           <IconComponent width={iconWidth} height={iconWidth} color={COLORS.NEUTRAL_600} />
         </View>
-        <Text text={getPropertyLabel(property.type)} type="body3" className="text-neutral-600 font-semibold" style={{ lineHeight: Platform.OS === 'ios' ? headerHeight :18}} />
+        <Text text={getPropertyLabel(property.type)} type="body3" className="text-neutral-600 font-semibold" style={{ lineHeight: Platform.OS === 'ios' ? headerHeight : 18 }} />
       </View>
 
       {isChipType ? (
@@ -134,22 +134,22 @@ export const Property = ({ property, onUpdate, readOnly = false, onRemoveValue }
       ) : (
         <View className="px-4 py-3" style={{ position: 'relative' }}>
 
-        <TextInput
-          value={property.values[0] || ''}
-          onChangeText={(text) => {
-            if (onUpdate) {
-              onUpdate({ ...property, values: [text] });
-            }
-          }}
-          selectionColor={COLORS.PRIMARY}
-          placeholder={`${getPropertyLabel(property.type)} 입력`}
-          className="text-black"
+          <TextInput
+            value={property.values[0] || ''}
+            onChangeText={(text) => {
+              if (onUpdate) {
+                onUpdate({ ...property, values: [text] });
+              }
+            }}
+            selectionColor={COLORS.PRIMARY}
+            placeholder={`${getPropertyLabel(property.type)} 입력`}
+            className="text-black"
             style={{
               fontFamily: 'NotoSansKR-Medium',
               fontSize: 15,
             }}
-          placeholderTextColor="#999"
-        />
+            placeholderTextColor="#999"
+          />
         </View>
       )}
     </View>

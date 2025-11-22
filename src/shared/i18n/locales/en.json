@@ -33,7 +33,19 @@
   "personDetail": {
     "title": "Person detail",
     "notFound": "Unable to find the person information.",
-    "relationSection": "Relations"
+    "relationSection": "Relations",
+    "actions": {
+      "edit": "Edit",
+      "delete": "Delete",
+      "save": "Save"
+    },
+    "edit": {
+      "title": "Edit person",
+      "deleteTitle": "Delete this person?",
+      "deleteDescription": "All relations connected to this person will be removed.",
+      "deleteCancel": "Cancel",
+      "deleteConfirm": "Delete"
+    }
   }
 }
 
