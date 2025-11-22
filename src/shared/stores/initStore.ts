@@ -76,15 +76,15 @@ export const useInitStore = create<InitStore>((set) => ({
 
   initialize: async () => {
     try {
-      // AsyncStorage에서 지인 정보 불러오기
+      // 1. AsyncStorage에서 지인 정보 불러오기
       const oldPeople = await AsyncStorageService.getJSONItem<OldPerson[]>(
         STORAGE_KEYS.PEOPLE,
       );
 
-      // 기존 데이터를 새로운 형식으로 마이그레이션
+      // 2. 기존 데이터를 새로운 형식으로 마이그레이션
       let migratedPeople = (oldPeople || []).map(migratePerson);
 
-      // 마이그레이션이 발생한 경우 저장
+      // 3. 마이그레이션이 발생한 경우 저장
       if (oldPeople && oldPeople.length > 0) {
         const needsMigration = oldPeople.some(
           (p) => p.properties === undefined || p.memo === undefined
@@ -98,14 +98,15 @@ export const useInitStore = create<InitStore>((set) => ({
         }
       }
 
+      // 4. 개발 모드에서 목 데이터 적용
       if (__DEV__ && ENABLE_DEV_DATA_MOCK) {
         migratedPeople = DEV_MOCK_PEOPLE;
       }
 
-      // personStore에 설정 (이미 정렬된 값이 저장되어 있음)
+      // 5. personStore에 설정 (이미 정렬된 값이 저장되어 있음)
       usePersonStore.getState().setPeople(migratedPeople);
 
-      // graphStore에 노드 동기화
+      // 6. graphStore에 노드 동기화
       let nodes: GraphNode[] = [];
       if (migratedPeople.length > 0) {
         nodes = migratedPeople.map((person) => ({
@@ -121,23 +122,24 @@ export const useInitStore = create<InitStore>((set) => ({
         useGraphStore.getState().setNodes([]);
       }
 
-      // AsyncStorage에서 관계 정보 불러오기
+      // 7. AsyncStorage에서 관계 정보 불러오기
       const storedRelations =
         await AsyncStorageService.getJSONItem<Relation[]>(
           STORAGE_KEYS.RELATIONS,
         );
 
       let relationData = storedRelations || [];
+      // 8. 개발 모드에서 목 데이터 적용
       if (__DEV__ && ENABLE_DEV_DATA_MOCK) {
         relationData = DEV_MOCK_RELATIONS;
       }
 
       let links: GraphLink[] = [];
       if (relationData.length > 0) {
-        // relationStore에 설정
+        // 9. relationStore에 설정
         useRelationStore.getState().setRelations(relationData);
 
-        // graphStore에 링크 동기화
+        // 10. graphStore에 링크 동기화
         links = relationData
           .map((relation) => {
             const sourceNode = nodes.find(
@@ -168,6 +170,7 @@ export const useInitStore = create<InitStore>((set) => ({
         useGraphStore.getState().setLinks([]);
       }
 
+      // 11. 초기화 완료
       set({ isInitialized: true });
     } catch (error) {
       console.error('초기화 중 오류 발생:', error);

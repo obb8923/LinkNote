@@ -1,7 +1,7 @@
 import { PersonType } from '@/shared/types/personType';
 import { Relation } from '@/shared/types/relationType';
 
-export const ENABLE_DEV_DATA_MOCK = true;
+export const ENABLE_DEV_DATA_MOCK = false;
 
 export const DEV_MOCK_PEOPLE: PersonType[] = [
     {
