@@ -29,6 +29,17 @@
       "searchEmpty": "검색 결과가 없어요."
     }
   },
+  "graph": {
+    "title": "그래프",
+    "empty": {
+      "title": "지인 정보가 없어요",
+      "line1": "기억하고 싶은 지인들을",
+      "line2": "등록해보세요"
+    },
+    "actions": {
+      "addPerson": "지인 정보 등록하기"
+    }
+  },
   "personDetail": {
     "title": "지인 상세",
     "notFound": "지인 정보를 찾을 수 없습니다.",

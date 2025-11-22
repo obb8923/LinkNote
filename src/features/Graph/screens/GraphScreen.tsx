@@ -10,7 +10,7 @@ import {
   type PanGestureHandlerEventPayload,
 } from 'react-native-gesture-handler';
 import type { ForceLink } from 'd3-force';
-import { Background, TabBar, ScreenHeader } from '@components/index';
+import { Background, TabBar, ScreenHeader, Text } from '@components/index';
 import { useGraphStore } from '@stores/graphStore';
 import { usePersonStore } from '@stores/personStore';
 import { useGraphLayout } from '@features/Graph/hooks/useGraphLayout';
@@ -27,10 +27,12 @@ import { TAB_BAR_HEIGHT } from '@constants/TAB_NAV_OPTIONS';
 import { NODE_RADIUS } from '@features/Graph/constants';
 import type { GraphLink, GraphNode } from '@/shared/types/graphType';
 import uuid from 'react-native-uuid';
+import { useTranslation } from 'react-i18next';
 
 export const GraphScreen = () => {
   const { width, height } = useWindowDimensions();
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation();
   const nodes = useGraphStore((s) => s.nodes);
   const links = useGraphStore((s) => s.links);
   const people = usePersonStore((s) => s.people);
@@ -272,7 +274,9 @@ export const GraphScreen = () => {
     return { filteredNodes: nodes, filteredLinks: links };
   }, [selectedFilter, nodes, links, people, groups, tags, canvasWidth, canvasHeight]);
 
+  const isMounted = useRef(false);
   const forceRender = useCallback(() => {
+    if (!isMounted.current) return;
     if (__DEV__) {
       console.log('[Graph] forceRender');
     }
@@ -280,6 +284,14 @@ export const GraphScreen = () => {
   }, []);
   const { tickSignal, simulationRef, fixNode, unfixNode, updateNodePosition } =
     useGraphLayout(filteredNodes, filteredLinks, canvasWidth, canvasHeight);
+  
+  useEffect(() => {
+    isMounted.current = true;
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
+
   useDerivedValue(() => {
     // tickSignal.value 접근을 통해 시뮬레이션 틱마다 React 리렌더 트리거
     if (tickSignal?.value !== undefined) {
@@ -502,12 +514,21 @@ export const GraphScreen = () => {
         }
       />
       <View className="flex-1 justify-center items-center overflow-visible">
-        <View
-          ref={canvasContainerRef}
-          style={{ width: canvasWidth, height: canvasHeight }}
-          onLayout={updateCanvasOffset}
-        >
-          {Platform.OS === 'ios' ? (
+        {(filteredNodes.length === 0 && filteredLinks.length === 0) ? (
+          <View className="flex-1 items-center justify-center">
+            <View className="items-center justify-center">
+              <Text text={t('graph.empty.title')} type="title4" className="text-gray-600" />
+              <Text text={t('graph.empty.line1')} type="title4" className="text-gray-600" />
+              <Text text={t('graph.empty.line2')} type="title4" className="text-gray-600" />
+            </View>
+          </View>
+        ) : (
+          <View
+            ref={canvasContainerRef}
+            style={{ width: canvasWidth, height: canvasHeight }}
+            onLayout={updateCanvasOffset}
+          >
+            {Platform.OS === 'ios' ? (
 <>
  {/* 터치 전용 레이어 */}
  <GestureDetector gesture={panGesture}>
@@ -593,11 +614,10 @@ export const GraphScreen = () => {
             </Group>
           </Canvas>
           </GestureDetector>
-
-</>
+          </>
           )}
-         
-        </View>
+          </View>
+        )}
       </View>
       <TabBar />
     </Background>

@@ -29,6 +29,17 @@
       "searchEmpty": "No results found."
     }
   },
+  "graph": {
+    "title": "Graph",
+    "empty": {
+      "title": "No people yet",
+      "line1": "Add the people you want to remember",
+      "line2": "and keep them organized."
+    },
+    "actions": {
+      "addPerson": "Add new person"
+    }
+  },
   "personDetail": {
     "title": "Person detail",
     "notFound": "Unable to find the person information.",
